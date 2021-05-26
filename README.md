@@ -33,36 +33,31 @@ This installation manual is tested on Ubuntu 18.04.4 LTS and 16.04 LTS.
 Execution 
 =========
 
-4. Go to Examples folder
+Go to Examples folder
 ```
    $ cd ../Examples/
 ```
 
 You will find one example of DC programs. Open an example in SWI-Prolog.
-
-5. Open an example in SWI-Prolog
 ```
    $ swipl -s dc+_example.pl
 ```
 
 SWI-Prolog should now be opened without any error or warnings.
 First, set the number of samples.
-
 ```
    ?- set_sample_size(1000).
 ```
-Second, turn off the debug mode (1 to turn on the debug mode).
 
+Second, turn off the debug mode (1 to turn on the debug mode).
 ```
    ?- set_debug(0).
 ```
 
 Now query. The first argument is query, second is the list of evidence and P is the output probability
-
 ```
    ?- query((status(l_1)~=X, X==appr), [credit_score(bob)~=600, balance(a_1)~=50010], P).
 ```
-
 
 Initialization Options 
 ======================
