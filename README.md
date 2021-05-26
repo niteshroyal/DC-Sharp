@@ -1,9 +1,9 @@
 # DC+
-A hybrid probabilistic logic programming language
+A hybrid probabilistic logic programming language.
 
 The older version of DC written by Davide Nitti is available here: [DC](https://github.com/davidenitti/DC)
 
-This new version supports combining rules and inference engine exploits context-specific independencies in DC+ programs.
+This new version supports combining rules, and the inference engine exploits context-specific independencies in DC+ programs.
 
 Installation
 ============
@@ -54,7 +54,7 @@ Second, turn off the debug mode (1 to turn on the debug mode).
    ?- set_debug(0).
 ```
 
-Now query. The first argument is query, second is the list of evidence and P is the output probability
+Now query. The first argument is the query, and second is the list of evidence, and P is the output probability
 ```
    ?- query((status(l_1)~=X, X==appr), [credit_score(bob)~=600, balance(a_1)~=50010], P).
 ```
@@ -88,5 +88,4 @@ Help
 ====
 
 If you need help or find a bug please write an [issue](https://github.com/niteshroyal/DC-Plus/issues) or contact me at niteshroyal (_DOT_) 30 (AT) gmail (_DOT_) com
-
 
