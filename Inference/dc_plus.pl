@@ -105,7 +105,7 @@ initialization options:
 		2: noisy-or for boolean, mixture for discrete, noisy-avg for gaussian, none for val, none for uniform
 */
 init :- 
-	display_transformed_rules(1),
+	display_transformed_rules(0),
 	\+backward_convert([do(X), X~Y, X::Y, X:=Y, evd(X)]),
 	\+define_rvs([do(X), X~Y, X::Y, X:=Y]),
 	connect_sampler(1),
@@ -377,6 +377,12 @@ needed_var(H,[HV|TV]) :-
 	).
 
 /* Backward chaining */
+findall_dc(X,Q,L) :- 
+	findall(X,Q,L).
+
+findall_forward(X,Q,L) :- 
+	findall(X,Q,L).
+
 prove_all(P) :- 
 	( combining_rule(0) ->
 		not(oncetried(P))
@@ -710,9 +716,10 @@ sum_items1([P:V|T],Val,S) :-
 	).
 
 combine_gaussian_distributions(Ds,D) :-
-	( combining_rule(1) ->
+	combining_rule(X),
+	( (X=0; X=1) ->
 		combine_gaussian_distributions_rule1(Ds,D)
-	;	( combining_rule(2) ->
+	;	( (X=0; X=2) ->
 			combine_gaussian_distributions_rule2(Ds,D)
 		;	throw('Invalid combining rule')
 		)
@@ -1070,4 +1077,7 @@ analyze_evidence(N,PW,EW,L,1) :-
 	writeln(L), 
 	writeln('').
 analyze_evidence(_,_,_,_,0).
+
+
+
 
