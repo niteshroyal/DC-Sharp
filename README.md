@@ -3,7 +3,7 @@ A hybrid probabilistic logic programming language.
 
 The older version of DC written by Davide Nitti is available here: [DC](https://github.com/davidenitti/DC)
 
-This new version supports combining rules, and the inference engine exploits context-specific independencies in DC+ programs.
+This new version is written from scratch. Now, it supports [combining rules](https://link.springer.com/article/10.1007/s10472-009-9138-5) and the inference engine exploits [context-specific independencies](http://proceedings.mlr.press/v130/kumar21b/kumar21b.pdf) in DC+ programs.
 
 Installation
 ============
