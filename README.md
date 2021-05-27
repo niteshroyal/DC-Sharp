@@ -38,7 +38,7 @@ Go to Examples folder
    $ cd ../Examples/
 ```
 
-You will find one example of DC programs. Open an example in SWI-Prolog.
+You will find examples of DC programs. Notice the syntax of DC programs. Open an example in SWI-Prolog.
 ```
    $ swipl -s dc+_example.pl
 ```
