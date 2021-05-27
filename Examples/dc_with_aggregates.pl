@@ -10,7 +10,7 @@
 %   Davide's DC (DC_Old) can be found here: https://github.com/davidenitti/DC
 initial :-
 	init,
-	set_sample_size(100000),
+	set_sample_size(10000),
 	set_default(2),
 	set_combining_rule(0).
 
@@ -55,13 +55,13 @@ amount(L) ~ gaussian(100000,250.5) := loan(L)~=1.
 
 age(C) ~ gaussian(30,5.4) := client(C)~=1.
 
-credit_score(C) ~ gaussian(500,10.2) := findall_forward(X, (has_loan(C,L)~=1, amount(L)~=X), L), maximum(L, Y), Y>=100000.
+credit_score(C) ~ gaussian(500,10.2) := findall_dc(X, (has_loan(C,L)~=1, amount(L)~=X), L), maximum(L, Y), Y>=100000.
 
-credit_score(C) ~ gaussian(600,20.3) := findall_forward(X, (has_loan(C,L)~=1, amount(L)~=X), L), maximum(L, Y), Y<100000.
+credit_score(C) ~ gaussian(600,20.3) := findall_dc(X, (has_loan(C,L)~=1, amount(L)~=X), L), maximum(L, Y), Y<100000.
 
-credit_score(C) ~ gaussian(650,40.5) := findall_forward(X, (has_loan(C,L)~=1, amount(L)~=X), L), \+maximum(L, _), age(C)~=Z, Z =< 30.
+credit_score(C) ~ gaussian(650,40.5) := findall_dc(X, (has_loan(C,L)~=1, amount(L)~=X), L), \+maximum(L, _), age(C)~=Z, Z =< 30.
 
-credit_score(C) ~ gaussian(700,20.7) := findall_forward(X, (has_loan(C,L)~=1, amount(L)~=X), L), \+maximum(L, _), age(C)~=Z, Z > 30.
+credit_score(C) ~ gaussian(700,20.7) := findall_dc(X, (has_loan(C,L)~=1, amount(L)~=X), L), \+maximum(L, _), age(C)~=Z, Z > 30.
 
 
 % ?- query(has_loan(ann,l_1)~=1, [credit_score(ann)~=500.5, credit_score(bob)~=649.7], P).
