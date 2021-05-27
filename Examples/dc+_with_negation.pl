@@ -26,17 +26,17 @@ loan(l_3) ~ val(true).
 account(a_1) ~ val(true).
 account(a_2) ~ val(true).
 
-has_loan(C,L) ~ finite([0.1:true, 0.9:false]) := client(C)~=true, loan(L)~=true.
+has_loan(C,L) ~ discrete([0.1:true, 0.9:false]) := client(C)~=true, loan(L)~=true.
 
-has_account(C,A) ~ finite([0.3:true, 0.7:false]) := client(C)~=true, account(A)~=true.
+has_account(C,A) ~ discrete([0.3:true, 0.7:false]) := client(C)~=true, account(A)~=true.
 
-account_loan(A,L) ~ finite([0.9:true, 0.1:false]) := has_loan(C,L)~=true, has_account(C,A)~=true.
-account_loan(A,L) ~ finite([0.1:true, 0.9:false]) := account(A)~=true, loan(L)~=true.
+account_loan(A,L) ~ discrete([0.9:true, 0.1:false]) := has_loan(C,L)~=true, has_account(C,A)~=true.
+account_loan(A,L) ~ discrete([0.1:true, 0.9:false]) := account(A)~=true, loan(L)~=true.
 
 amount(L) ~ gaussian(100000.0, 40000.9) := loan(L)~=true.
 
-status(L) ~ finite([0.4:appr, 0.5:pend, 0.1:decl]) := amount(L)~=X, X < 95000.
-status(L) ~ finite([0.1:appr, 0.3:pend, 0.6:decl]) := amount(L)~=X, X >= 95000.
+status(L) ~ discrete([0.4:appr, 0.5:pend, 0.1:decl]) := amount(L)~=X, X < 95000.
+status(L) ~ discrete([0.1:appr, 0.3:pend, 0.6:decl]) := amount(L)~=X, X >= 95000.
 
 balance(A) ~ gaussian(25000, 6000.9) := \+account_loan(A,_)~=true.
 balance(A) ~ gaussian(20000, 5000.9) := account_loan(A,L)~=true, amount(L)~=X, X < 97000.
