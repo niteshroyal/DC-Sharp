@@ -3,7 +3,7 @@
  * Author:	Nitesh Kumar
  * E-mail:	nitesh.kr369@gmail.com
  * WWW:		https://sites.google.com/view/niteshroyal 
- * Copyright (C) 2020, 2021 Nitesh Kumar
+ * Copyright (C) 2020 Nitesh Kumar
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -77,6 +77,7 @@ user:builtin(_ > _).
 user:builtin(_ < _).
 user:builtin(_ >= _).
 user:builtin(_ =< _).
+user:builtin(true).
 user:builtin(write(_)).
 user:builtin(writeln(_)).
 
@@ -101,11 +102,11 @@ initialization options:
 		1: time (in secs) is used to stop sampling
 	set_combining_rule/1:
 		0: no combining rule (same as Davide's DC where the first distribution defined for RV is considered)
-		1: noisy-or for boolean, mixture for discrete, mixture for gaussian, none for val, none for uniform
-		2: noisy-or for boolean, mixture for discrete, noisy-avg for gaussian, none for val, none for uniform
+		1: noisy-or for boolean, mixture for discrete, mixture for gaussian, none for val, none for uniform, none for poisson
+		2: noisy-or for boolean, mixture for discrete, noisy-avg for gaussian, none for val, none for uniform, none for poisson
 */
 init :- 
-	display_transformed_rules(0),
+	%display_transformed_rules(1),
 	\+backward_convert([do(X), X~Y, X::Y, X:=Y, evd(X)]),
 	\+define_rvs([do(X), X~Y, X::Y, X:=Y]),
 	connect_sampler(1),
@@ -176,7 +177,10 @@ type_of_rvs(D) :-
 					set_rv(constraints)
 				;	( D = uniform(_) ->
 						set_rv(uniform)
-					;	throw("unknown RV type encountered")
+					;	( D = poisson(_) ->
+							set_rv(poisson)
+						;	throw("unknown RV type encountered")
+						)
 					)
 				)
 			)
@@ -590,6 +594,8 @@ sample_distribution(uniform(X),V) :-
 	length(X,N), sample_uniform(N,Idx), nth1(Idx,X,V).
 sample_distribution(gaussian_mixture(Ms,Vs,Ws),V) :-
 	sample_gaussian_mixture(Ms,Vs,Ws,V).
+sample_distribution(poisson(Mu),V) :- 
+	sample_poisson(Mu,V).
 
 weight_distribution(bernoulli(P),V,W) :- 
 	weight_bernoulli(P,V,W).
@@ -616,6 +622,8 @@ weight_distribution(uniform(X),V,W) :-
 	).
 weight_distribution(gaussian_mixture(Ms,Vs,Ws),V,W) :-
 	weight_gaussian_mixture(Ms,Vs,Ws,V,W).
+weight_distribution(poisson(Mu),V,W) :- 
+	weight_poisson(Mu,V,W).
 
 weight_bernoulli(P,V,W) :- 
 	( V=1 -> 
@@ -657,6 +665,11 @@ combine_distributions([val(X)|Tail], D) :-
 	( Z = [V] ->
 		D = val(V)
 	;	throw('Error combining vals: a RV cannot have two values in a possible world.')
+	).
+combine_distributions([poisson(Mu)|Tail], D) :- 
+	( Tail = [] ->
+		D = poisson(Mu)
+	;	throw('The combining rule for Poisson distributions is not written yet.')
 	).
 combine_distributions([uniform(X)|Tail], D) :- 
 	combine_uniform_distributions([uniform(X)|Tail], D).
@@ -847,7 +860,7 @@ set_approach(X) :-
 	).
 
 set_default(N) :- 
-	( ((has_rv(discrete); has_rv(gaussian); has_rv(constraints); has_rv(uniform)), N=1) ->
+	( ((has_rv(discrete); has_rv(gaussian); has_rv(constraints); has_rv(uniform); has_rv(poisson)), N=1) ->
 		throw('Default feature is supported only for Bernoulli distributions')
 	;	( default(_) ->
 			retract(default(_)), 

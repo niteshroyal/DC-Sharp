@@ -1,7 +1,10 @@
 /*
  * sampler.h
  *
- * Copyright (C) 2020, 2021 Nitesh Kumar
+ * Author:	Nitesh Kumar
+ * E-mail:	nitesh.kr369@gmail.com
+ * WWW:		https://sites.google.com/view/niteshroyal
+ * Copyright (C) 2020 Nitesh Kumar
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -72,6 +75,16 @@ public:
 	 * Sample from a Gaussian distribution with mean m and standard deviation std.
 	 */
 	double sample_gaussian_dist(double m, double std);
+
+	/**
+	 * Sample from a Poisson distribution with mean mu.
+	 */
+	int sample_poisson_dist(double mu);
+
+	/**
+	 * Get the likelihood at a point from a Poisson distribution.
+	 */
+	double weight_poisson_dist(double mu, int k);
 
 	/**
 	 * Sample from weighted mixture of distributions.

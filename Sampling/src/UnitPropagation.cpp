@@ -1,7 +1,10 @@
 /*
  * unitPropagation.cpp
  *
- * Copyright (C) 2020, 2021 Nitesh Kumar
+ * Author:	Nitesh Kumar
+ * E-mail:	nitesh.kr369@gmail.com
+ * WWW:		https://sites.google.com/view/niteshroyal
+ * Copyright (C) 2020 Nitesh Kumar
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

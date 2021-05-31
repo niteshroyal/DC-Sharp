@@ -1,7 +1,10 @@
 /*
  * expectedlw.cpp
  *
- * Copyright (C) 2020, 2021 Nitesh Kumar
+ * Author:	Nitesh Kumar
+ * E-mail:	nitesh.kr369@gmail.com
+ * WWW:		https://sites.google.com/view/niteshroyal
+ * Copyright (C) 2020 Nitesh Kumar
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -102,6 +105,15 @@ PREDICATE(sample_uniform, 3) {
 PREDICATE(sample_uniform, 2) {
 	double a = (double)A1;
 	return A2 = samplerObj->sample_uniform_int(a);
+}
+
+PREDICATE(sample_poisson, 2) {
+	double mu = (double)A1;
+	return A2 = samplerObj->sample_poisson_dist(mu);
+}
+
+PREDICATE(weight_poisson, 3) {
+	return A3 = samplerObj->weight_poisson_dist((double)A1, (int)A2);
 }
 
 PREDICATE(weight_gaussian, 4) {

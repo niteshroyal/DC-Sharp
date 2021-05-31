@@ -1,7 +1,10 @@
 /*
  * sampler.cpp
  *
- * Copyright (C) 2020, 2021 Nitesh Kumar
+ * Author:	Nitesh Kumar
+ * E-mail:	nitesh.kr369@gmail.com
+ * WWW:		https://sites.google.com/view/niteshroyal
+ * Copyright (C) 2020 Nitesh Kumar
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -68,6 +71,14 @@ sampler::~sampler() {
 
 double sampler::sample_uniform_dist(double a, double b) {
 	return gsl_ran_flat(generator, a, b);
+}
+
+int sampler::sample_poisson_dist(double mu) {
+	return gsl_ran_poisson(generator, mu);
+}
+
+double sampler::weight_poisson_dist(double mu, int k) {
+	return gsl_ran_poisson_pdf(k, mu);
 }
 
 int sampler::sample_uniform_int(int a) {
