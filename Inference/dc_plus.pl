@@ -22,9 +22,11 @@
 
 :- module('dc_plus', 
 	[	init/0, 
-		query/3, 
+		query/3,
+		query_naive/3, 
 		query/4, 
-		query_timeout/6, 
+		query_timeout/6,
+		query_timeout_naive/6, 
 		set_debug/1,  
 		set_default/1, 
 		set_sample_size/1,
@@ -475,14 +477,17 @@ query(Q,P) :-
 	findall(Entail, (between(1,N,_), prove(Q,Entail)), L), 
 	probability(L,P).
 
-query(Q,E,P) :- 
+query1(Q,E,P,BB) :- 
 	check_sample_size, 
 	debug(F), 
 	check_debug, 
 	sample_size(N), 
 	clean, 
 	add_evidence(E),
-	findall(Entail, (between(1,N,K), forward_backward(K,Q,Entail)), L),
+	( BB=1 ->
+		findall(Entail, (between(1,N,K), forward_backward(K,Q,Entail)), L)
+	;	findall(Entail, (between(1,N,K), backward_naive(K,Q,Entail)), L)
+	), 
 	( approach(full) -> 
 		list_of_full_weights_and_residuals(N, PW, Res), 
 		expected_lw(PW,Res,EW)
@@ -493,14 +498,22 @@ query(Q,E,P) :-
 	analyze_evidence(N,PW,EW,L,F), 
 	remove_evidence(E).
 
-query_timeout(Q,E,P,M,Secs,N) :- 
+query(Q,E,P) :-
+	query1(Q,E,P,1).
+
+query_naive(Q,E,P) :-
+	query1(Q,E,P,0).
+
+query_timeout(Q,E,P,M,Secs,N,BB) :- 
 	debug(F), 
 	check_debug, 
 	clean, 
 	add_evidence(E), 
-	set_time_out(Secs), 
-	findall(Entail, (between(1,M,K), time_out(X), get_time(Y), Y<X, forward_backward(K,Q,Entail)), L),
-	length(L,N), 
+	set_time_out(Secs),
+	( BB=1 ->
+		findall(Entail, (between(1,M,K), time_out(X), get_time(Y), Y<X, forward_backward(K,Q,Entail)), L)
+	;	findall(Entail, (between(1,M,K), time_out(X), get_time(Y), Y<X, backward_naive(K,Q,Entail)), L)
+	), length(L,N), 
 	( approach(full) -> 
 		list_of_full_weights_and_residuals(N, PW, Res), 
 		expected_lw(PW,Res,EW)
@@ -510,6 +523,12 @@ query_timeout(Q,E,P,M,Secs,N) :-
 	probability(L,EW,P), 
 	analyze_evidence(N,PW,EW,L,F), 
 	remove_evidence(E).
+
+query_timeout(Q,E,P,M,Secs,N) :-
+	query_timeout(Q,E,P,M,Secs,N,1).
+
+query_timeout_naive(Q,E,P,M,Secs,N) :-
+	query_timeout(Q,E,P,M,Secs,N,0).
 
 query(Q,E,D,P) :- 
 	check_sample_size, 
@@ -541,6 +560,19 @@ forward_backward(K,Q,Entail) :-
 	record(K), 
 	debug(F), 
 	analyze_sample(K,F).
+
+backward_naive(K,Q,Entail) :- 
+	forall(recorded(_,_,R), erase(R)),
+	(call(Q) -> Entail=1; Entail=0), 
+	\+to_prove_evidence, 
+	record(K), 
+	debug(F), 
+	analyze_sample(K,F).
+
+to_prove_evidence :-
+	evidence(X~=_),
+	infer_child(X),
+	fail.
 
 /* Sampling */
 all_distributions(X,D_list) :- 
@@ -917,7 +949,6 @@ list_of_partial_weights(N, List) :-
 	list_of_diagnostic_evd(N,L1), 
 	findall(W, (between(1,N,K), atom_concat(d,K,Key), nb_getval(Key,L2), prepare_list(L1,L2,W)), List).
 
-
 list_of_full_weights_and_residuals(N, List, Res) :- 
 	garbage_collect, 
 	list_of_diagnostic_evd(N,L1),
@@ -925,12 +956,10 @@ list_of_full_weights_and_residuals(N, List, Res) :-
 	seperate_w_r(WR, List, Res).
 
 seperate_w_r([],[],[]).
-
 seperate_w_r([(W,R)|T], List, Res) :- 
 	seperate_w_r(T,List1,Res1), 
 	List=[W|List1], 
 	Res=[R|Res1].
-
 
 fill_residuals([],_,[],[],_).
 fill_residuals([H|T],Partial,Weight,Res,C) :- 

@@ -14,19 +14,6 @@ initial :-
 	set_default(2),
 	set_combining_rule(0).
 
-/*
-%  Use the following to run Davide's DC
-
-	:- use_module('../DC_Old/dcpf.pl'). 
-	:- use_module('../DC_Old/random/sampling.pl'). 
-	:- use_module('../DC_Old/distributionalclause.pl'). 
-	:- set_options(default). 
-	:- initialization(init).
-
-	qry(Query,Evidence,NumSamples,Prob) :-
-		query(Evidence,[],Query,NumSamples,Prob).
-*/
-
 
 client(ann) ~ val(true).
 client(bob) ~ val(true).
