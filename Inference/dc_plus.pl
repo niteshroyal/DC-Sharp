@@ -33,7 +33,8 @@
 		set_time_out/1, 
 		set_seed/1,
 		set_combining_rule/1,
-		display_transformed_rules/1
+		display_transformed_rules/1,
+		set_residual_approach/1
 	]).
 
 :- load_foreign_library('../Sampling/sampling').
