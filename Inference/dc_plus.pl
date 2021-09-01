@@ -67,7 +67,7 @@
 :- table (rv/1) as subsumptive.
 :- table (child/2) as subsumptive.
 
-%:- initialization(init).
+:- initialization(init).
 
 /* Built-in predicates: invokes Prolog predicates */
 user:builtin(_ = _).
@@ -106,14 +106,19 @@ initialization options:
 		0: no combining rule (same as Davide's DC where the first distribution defined for RV is considered)
 		1: noisy-or for boolean, mixture for discrete, mixture for gaussian, none for val, none for uniform, none for poisson
 		2: noisy-or for boolean, mixture for discrete, noisy-avg for gaussian, none for val, none for uniform, none for poisson
+	set_residual_approach/1:
+		bayes_ball: set of all diagnostic evidence is computed using Bayes ball algorithm and then residuals are computed
+		full: set of diagnostic evidence is estimated from samples and then residuals are computed
+		biased: residuals are not computed. This approach gives biased estimates.
 */
 init :- 
 	%display_transformed_rules(1),
-	\+backward_convert([do(X), X~Y, X::Y, X:=Y, evd(X)]),
+	\+backward_convert([do(X), X~Y, X::Y, X:=Y]),
+	\+backward_convert_evd,
 	\+define_rvs([do(X), X~Y, X::Y, X:=Y]),
 	connect_sampler(1),
 	set_debug(0),
-	set_approach(full),
+	set_residual_approach(bayes_ball),
 	set_default(0),
 	set_time_out(0),
 	set_combining_rule(1).
@@ -135,11 +140,15 @@ backward_convert2(L) :-
 	new_backward_rule(L), 
 	fail.
 
+backward_convert_evd :-
+	clause(evd(X),Y),
+	( Y=true ->
+		assert_transformations(evidence(X))
+	;	process_evd(Y,Y1), assert_transformations(:-(evidence(X),Y1))
+	), fail.
+
 new_backward_rule(do(X)) :- 
 	assert_transformations(intervention(X)).
-
-new_backward_rule(evd(X)) :-
-	assert_transformations(evidence(X)). 
 
 new_backward_rule(H~D) :-
 	type_of_rvs(D),
@@ -158,6 +167,15 @@ new_backward_rule(P::F:=R) :-
 	type_of_rvs(bernoulli(P)),
 	add_at_end(R,add_distribution(F,bernoulli(P)),R_distribution),
 	assert_transformations(:-(distributional(F),R_distribution)). 
+
+process_evd(X, X1) :-
+	\+(X=(_,_)), 
+	X=evd(Z),
+	X1=evidence(Z),
+	!.
+
+process_evd((evd(Z),Y), (evidence(Z),Y1)) :-
+	process_evd(Y,Y1).
 
 add_at_end(A,E,(A,E)) :- 
 	\+(A=(_,_)), !.
@@ -470,6 +488,60 @@ infer_child(L) :-
 done :- 
 	\+recorded(agenda,_).
 
+/* Bayes Ball to detected all diagnostic evidence */
+bayes_ball(Q,ListDiagEvd) :-
+	forall(recorded(_,_,R), erase(R)),
+	visit_queries(Q),
+	findall(X, recorded(diagnostic_evd, X), ListDiagEvd).
+
+visit_queries(V~=_) :-
+	rv(V),
+	\+visit(V,child).
+visit_queries((V~=_,B)) :-
+	rv(V),
+	\+visit(V,child),
+	visit_queries(B).
+
+visit(J,child) :- 
+	\+intervention(J~=_),
+	\+evidence(J~=_),
+	markTop(J),
+	child(P,J),
+	visit(P,child).
+visit(J,child) :-
+	\+intervention(J~=_),
+	\+evidence(J~=_),
+	markBottom(J), 
+	child(J,C), 
+	visit(C,parent).
+visit(J,parent) :-
+	evidence(J~=_),
+	markTop(J), 
+	record_diagnostic(J),
+	child(P,J), 
+	visit(P,child).
+visit(J,parent) :- 
+	\+intervention(J~=_),
+	\+evidence(J~=_), 
+	markBottom(J), 
+	child(J,C), 
+	visit(C,parent).
+
+markTop(J) :- 
+	( recorded_top(J) ->
+		fail
+	;	record_top(J)
+	).
+
+markBottom(J) :-
+	( recorded_bottom(J) ->
+		fail
+	;	record_bottom(J)
+	).
+
+record_diagnostic(J) :-
+	recordz(diagnostic_evd, J).
+
 /* Simulation of DC programs */
 query(Q,P) :- 
 	check_sample_size, 
@@ -488,12 +560,17 @@ query1(Q,E,P,BB) :-
 		findall(Entail, (between(1,N,K), forward_backward(K,Q,Entail)), L)
 	;	findall(Entail, (between(1,N,K), backward_naive(K,Q,Entail)), L)
 	), 
-	( approach(full) -> 
-		list_of_full_weights_and_residuals(N, PW, Res), 
+	( approach(bayes_ball) ->
+		bayes_ball(Q,LDE),
+		list_of_full_weights_and_residuals(N, LDE, PW, Res),
 		expected_lw(PW,Res,EW)
-	;	list_of_partial_weights(N,PW), 
-		expected_lw(PW,EW)
-	), 
+	;	(  approach(full) ->
+			list_of_full_weights_and_residuals(N, PW, Res),
+			expected_lw(PW,Res,EW)
+		;	list_of_partial_weights(N,PW), 
+			expected_lw(PW,EW)
+		)
+	),
 	probability(L,EW,P), 
 	analyze_evidence(N,PW,EW,L,F), 
 	remove_evidence(E).
@@ -514,12 +591,17 @@ query_timeout(Q,E,P,M,Secs,N,BB) :-
 		findall(Entail, (between(1,M,K), time_out(X), get_time(Y), Y<X, forward_backward(K,Q,Entail)), L)
 	;	findall(Entail, (between(1,M,K), time_out(X), get_time(Y), Y<X, backward_naive(K,Q,Entail)), L)
 	), length(L,N), 
-	( approach(full) -> 
-		list_of_full_weights_and_residuals(N, PW, Res), 
+	( approach(bayes_ball) ->
+		bayes_ball(Q,LDE),
+		list_of_full_weights_and_residuals(N, LDE, PW, Res),
 		expected_lw(PW,Res,EW)
-	;	list_of_partial_weights(N,PW), 
-		expected_lw(PW,EW)
-	), 
+	;	( approach(full) -> 
+			list_of_full_weights_and_residuals(N, PW, Res), 
+			expected_lw(PW,Res,EW)
+		;	list_of_partial_weights(N,PW),
+			expected_lw(PW,EW)
+		)
+	),
 	probability(L,EW,P), 
 	analyze_evidence(N,PW,EW,L,F), 
 	remove_evidence(E).
@@ -884,7 +966,7 @@ set_debug(N) :-
 	; 	asserta(debug(N)) 
 	).
 
-set_approach(X) :- 
+set_residual_approach(X) :- 
 	( approach(_) ->
 		retract(approach(_)), 
 		asserta(approach(X))
@@ -949,9 +1031,15 @@ list_of_partial_weights(N, List) :-
 	list_of_diagnostic_evd(N,L1), 
 	findall(W, (between(1,N,K), atom_concat(d,K,Key), nb_getval(Key,L2), prepare_list(L1,L2,W)), List).
 
-list_of_full_weights_and_residuals(N, List, Res) :- 
-	garbage_collect, 
-	list_of_diagnostic_evd(N,L1),
+list_of_full_weights_and_residuals(N, LDE, List, Res) :- 
+	list_of_full_weights_and_residuals1(N, LDE, List, Res).
+
+list_of_full_weights_and_residuals(N, List, Res) :-
+	list_of_diagnostic_evd(N,LDE),
+	list_of_full_weights_and_residuals1(N, LDE, List, Res).
+
+list_of_full_weights_and_residuals1(N, L1, List, Res) :-
+	garbage_collect,
 	findall((W,R), (between(1,N,K), atom_concat(d,K,Key), nb_getval(Key,L2), forall(recorded(_,_,Ref), erase(Ref)), fill_residuals(L1,L2,W,R,0)), WR), 
 	seperate_w_r(WR, List, Res).
 
@@ -1119,7 +1207,5 @@ analyze_evidence(N,PW,EW,L,1) :-
 	writeln(L), 
 	writeln('').
 analyze_evidence(_,_,_,_,0).
-
-
 
 
