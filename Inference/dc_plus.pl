@@ -119,7 +119,7 @@ init :-
 	\+define_rvs([do(X), X~Y, X::Y, X:=Y]),
 	connect_sampler(1),
 	set_debug(0),
-	set_residual_approach(bayes_ball),
+	set_residual_approach(full),
 	set_default(0),
 	set_time_out(0),
 	set_combining_rule(1).
