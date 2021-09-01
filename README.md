@@ -85,7 +85,7 @@ Initialization Options
 		0: no combining rule (same as Davide's DC where the first distribution defined for RV is considered)
 		1: noisy-or for boolean, mixture for discrete, mixture for gaussian, none for val, none for uniform
 		2: noisy-or for boolean, mixture for discrete, noisy-avg for gaussian, none for val, none for uniform
-        set_residual_approach/1:
+	set_residual_approach/1:
                 bayes_ball: set of all diagnostic evidence is computed using Bayes ball algorithm and then residuals are computed
                 full: set of diagnostic evidence is estimated from samples and then residuals are computed
                 biased: residuals are not computed. This approach gives biased estimates.
