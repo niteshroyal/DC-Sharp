@@ -68,7 +68,7 @@
 :- table (rv/1) as subsumptive.
 :- table (child/2) as subsumptive.
 
-:- initialization(init).
+%:- initialization(init).
 
 /* Built-in predicates: invokes Prolog predicates */
 user:builtin(_ = _).
@@ -119,7 +119,7 @@ init :-
 	\+define_rvs([do(X), X~Y, X::Y, X:=Y]),
 	connect_sampler(1),
 	set_debug(0),
-	set_residual_approach(full),
+	set_residual_approach(bayes_ball),
 	set_default(0),
 	set_time_out(0),
 	set_combining_rule(1).
@@ -252,17 +252,17 @@ rv_rule(P::F:=B) :-
 
 assert_children(H,Rlist,R1) :- 
 	member(G,Rlist), 
-	fetch_hb(G,F),
-	assert_children1(F,H,R1),
+	fetch_hb(G,F,X),
+	assert_children1(F,H,R1,X),
 	fail.
 
-fetch_hb(G,F) :-
+fetch_hb(G,F,X) :-
 	( G = F~=_ ->
-		true
+		X=empty
 	;	( (G = \+(_~=_); G = not(_~=_)) ->
-			fetch_hb_neg(G,F)
+			fetch_hb_neg(G,F), X=empty
 		;	( is_findall_dc(G,Q) ->
-				fetch_hb_findall(Q,F)
+				process_findall(Q,X), fetch_hb_findall(Q,F)
 			;	fail
 			)
 		)
@@ -288,14 +288,16 @@ fetch_hb_findall1((A,B),L) :-
 	append(L1,L2,L).
 
 fetch_hb1(A,L) :-
-	( fetch_hb(A,A1) ->
+	( fetch_hb(A,A1,_) ->
 		L = [A1]
 	;	L = []
 	).
 
-assert_children1(F,H,R1) :-
-	add_at_end(R1,rv(H),X), 
-	assert_transformations(:-(child(F,H),X)).
+assert_children1(F,H,R1,Y) :-
+	( Y=empty ->
+		add_at_end(R1,rv(H),X)
+	;	add_at_end(R1,Y,X1), add_at_end(X1,rv(H),X)
+	), assert_transformations(:-(child(F,H),X)).
 
 rv_format(A,B) :-
 	rv_format1(A,C),
@@ -332,8 +334,8 @@ process_atoms(A,A1) :-
 		A1=rv(R)
 	;	( (A = \+(_~=_); A = not(_~=_)) ->
 			process_negation(A,1,A1)
-		;	( is_findall_dc(A,Q) ->
-				process_findall(Q,A1)
+		;	( is_findall_dc(A,_) ->
+				A1=true
 			;	( (builtin(A); A = \+(B), builtin(B); A = not(B), builtin(B)) ->
 					A1=true
 				;	throw("unexpected literal in the body of distributional clause")
@@ -492,13 +494,14 @@ done :-
 /* Bayes Ball to detected all diagnostic evidence */
 bayes_ball(Q,ListDiagEvd) :-
 	forall(recorded(_,_,R), erase(R)),
-	visit_queries(Q),
+	rv_format(Q,Q1),
+	visit_queries(Q1),
 	findall(X, recorded(diagnostic_evd, X), ListDiagEvd).
 
-visit_queries(V~=_) :-
+visit_queries(rv(V)) :-
 	rv(V),
 	\+visit(V,child).
-visit_queries((V~=_,B)) :-
+visit_queries((rv(V),B)) :-
 	rv(V),
 	\+visit(V,child),
 	visit_queries(B).
@@ -975,7 +978,7 @@ set_residual_approach(X) :-
 	).
 
 set_default(N) :- 
-	( ((has_rv(discrete); has_rv(gaussian); has_rv(constraints); has_rv(uniform); has_rv(poisson)), N=1) ->
+	( ((has_rv(discrete); has_rv(gaussian); has_rv(uniform); has_rv(poisson)), N=1) ->
 		throw('Default feature is supported only for Bernoulli distributions')
 	;	( default(_) ->
 			retract(default(_)), 
