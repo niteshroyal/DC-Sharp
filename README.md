@@ -1,9 +1,9 @@
-# DC+
+# DC#
 A hybrid probabilistic logic programming language.
 
 The older version of DC written by Davide Nitti is available here: [DC](https://github.com/davidenitti/DC)
 
-This new version is written from scratch. Now, it supports [combining rules](https://link.springer.com/article/10.1007/s10472-009-9138-5) and the inference engine exploits [context-specific independencies](http://proceedings.mlr.press/v130/kumar21b/kumar21b.pdf) in DC+ programs.
+This new version is written from scratch. Now, it supports [combining rules](https://link.springer.com/article/10.1007/s10472-009-9138-5) and the inference engine exploits [context-specific independencies](http://proceedings.mlr.press/v130/kumar21b/kumar21b.pdf) in DC# programs.
 
 It is possible to write (acyclic) ProbLog programs without Annotated Disjunction in this version. 
 
@@ -42,13 +42,13 @@ Go to Examples folder
 
 You will find examples of DC programs. Notice the syntax of DC programs. Open one example in SWI-Prolog.
 ```
-   $ swipl -s dc+_example.pl
+   $ swipl -s dc#_example.pl
 ```
 
 SWI-Prolog should now be opened without any error or warnings.
 First, set the number of samples.
 ```
-   ?- set_sample_size(1000).
+   ?- set_sample_size(10000).
 ```
 
 Second, turn off the debug mode (1 to turn on the debug mode).

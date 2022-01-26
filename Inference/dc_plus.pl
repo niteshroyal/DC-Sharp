@@ -60,10 +60,10 @@
 :- op(681,xfx,user:'~=').
 :- op(1100,xfx,user:':=').
 
-:- discontiguous 
-	user:(::)/2, 
-	user:(~)/2, 
-	user:(:=)/2.
+%:- discontiguous 
+%	user:(::)/2, 
+%	user:(~)/2, 
+%	user:(:=)/2.
 
 :- table (rv/1) as subsumptive.
 :- table (child/2) as subsumptive.
@@ -145,7 +145,8 @@ backward_convert_evd :-
 	clause(evd(X),Y),
 	( Y=true ->
 		assert_transformations(evidence(X))
-	;	process_evd(Y,Y1), assert_transformations(:-(evidence(X),Y1))
+	%;	process_evd(Y,Y1), assert_transformations(:-(evidence(X),Y1))
+	;	assert_transformations(:-(evidence(X),Y))
 	), fail.
 
 new_backward_rule(do(X)) :- 
@@ -200,7 +201,13 @@ type_of_rvs(D) :-
 						set_rv(uniform)
 					;	( D = poisson(_) ->
 							set_rv(poisson)
-						;	throw("unknown RV type encountered")
+						;	( D = beta(_,_) ->
+								set_rv(beta)
+							;	( D = gamma(_,_) ->
+									set_rv(gamma)
+								;	throw("unknown RV type encountered")
+								)
+							)
 						)
 					)
 				)
@@ -583,6 +590,7 @@ query(Q,E,P) :-
 	query1(Q,E,P,1).
 
 query_naive(Q,E,P) :-
+	set_residual_approach(full),
 	query1(Q,E,P,0).
 
 query_timeout(Q,E,P,M,Secs,N,BB) :- 
@@ -714,6 +722,10 @@ sample_distribution(gaussian_mixture(Ms,Vs,Ws),V) :-
 	sample_gaussian_mixture(Ms,Vs,Ws,V).
 sample_distribution(poisson(Mu),V) :- 
 	sample_poisson(Mu,V).
+sample_distribution(beta(A,B),V) :- 
+	sample_beta(A,B,V).
+sample_distribution(gamma(A,B),V) :- 
+	sample_gamma(A,B,V).
 
 weight_distribution(bernoulli(P),V,W) :- 
 	weight_bernoulli(P,V,W).
@@ -742,6 +754,10 @@ weight_distribution(gaussian_mixture(Ms,Vs,Ws),V,W) :-
 	weight_gaussian_mixture(Ms,Vs,Ws,V,W).
 weight_distribution(poisson(Mu),V,W) :- 
 	weight_poisson(Mu,V,W).
+weight_distribution(gamma(A,B),V,W) :-
+	weight_gamma(A,B,V,W).
+weight_distribution(beta(A,B),V,W) :-
+	weight_beta(A,B,V,W).
 
 weight_bernoulli(P,V,W) :- 
 	( V=1 -> 
@@ -789,6 +805,17 @@ combine_distributions([poisson(Mu)|Tail], D) :-
 		D = poisson(Mu)
 	;	throw('The combining rule for Poisson distributions is not written yet.')
 	).
+combine_distributions([gamma(A,B)|Tail], D) :- 
+	( Tail = [] ->
+		D = gamma(A,B)
+	;	throw('The combining rule for Gamma distributions is not written yet.')
+	).
+combine_distributions([beta(A,B)|Tail], D) :- 
+	( Tail = [] ->
+		D = beta(A,B)
+	;	throw('The combining rule for Beta distributions is not written yet.')
+	).
+
 combine_distributions([uniform(X)|Tail], D) :- 
 	combine_uniform_distributions([uniform(X)|Tail], D).
 combine_distributions([finite(L)|Tail], D) :-
@@ -978,7 +1005,7 @@ set_residual_approach(X) :-
 	).
 
 set_default(N) :- 
-	( ((has_rv(discrete); has_rv(gaussian); has_rv(uniform); has_rv(poisson)), N=1) ->
+	( ((has_rv(discrete); has_rv(gaussian); has_rv(uniform); has_rv(poisson); has_rv(gamma); has_rv(beta)), N=1) ->
 		throw('Default feature is supported only for Bernoulli distributions')
 	;	( default(_) ->
 			retract(default(_)), 

@@ -106,6 +106,16 @@ double sampler::sample_gaussian_dist(double m, double std) {
 	return s+m;
 }
 
+double sampler::sample_gamma_dist(double a, double b) {
+	double x = gsl_ran_gamma(generator, a, b);
+	return x;
+}
+
+double sampler::sample_beta_dist(double a, double b) {
+	double x = gsl_ran_beta(generator, a, b);
+	return x;
+}
+
 double sampler::sample_mixture_of_gaussians(vector<double> means, vector<double> stds, vector<double> weights, int num) {
 	if(num == 1) {
 		if(!sampler::double_equals((double)weights[0], 1.0)) {
@@ -137,6 +147,14 @@ double sampler::sample_mixture_of_gaussians(vector<double> means, vector<double>
 double sampler::weight_gaussian_dist(double m, double std, double x) {
 	x = x-m;
 	return gsl_ran_gaussian_pdf(x, std);
+}
+
+double sampler::weight_gamma_dist(double x, double a, double b) {
+	return gsl_ran_gamma_pdf(x, a, b);
+}
+
+double sampler::weight_beta_dist(double x, double a, double b) {
+	return gsl_ran_beta_pdf(x, a, b);
 }
 
 double sampler::weight_mixture_of_gaussians(vector<double> means, vector<double> stds, vector<double> weights, double x, int num) {

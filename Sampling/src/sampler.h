@@ -77,6 +77,16 @@ public:
 	double sample_gaussian_dist(double m, double std);
 
 	/**
+	 * Sample from a Gamma distribution with parameters a and b.
+	 */
+	double sample_gamma_dist(double a, double b);
+
+	/**
+	 * Sample from a Beta distribution with parameters a and b.
+	 */
+	double sample_beta_dist(double a, double b);
+
+	/**
 	 * Sample from a Poisson distribution with mean mu.
 	 */
 	int sample_poisson_dist(double mu);
@@ -95,6 +105,16 @@ public:
 	 * Get the likelihood weight for a point from Gaussian distribution with mean m and standard deviation std.
 	 */
 	double weight_gaussian_dist(double m, double std, double x);
+
+	/**
+	 * Get the likelihood weight for a point from Gamma distribution with parameters a and b.
+	 */
+	double weight_gamma_dist(double x, double a, double b);
+
+	/**
+	 * Get the likelihood weight for a point from Beta distribution with parameters a and b.
+	 */
+	double weight_beta_dist(double x, double a, double b);
 
 	/**
 	 * Get the likelihood at a point from weighted mixture of distributions.

@@ -96,6 +96,18 @@ PREDICATE(sample_gaussian, 3) {
 	return A3 = samplerObj->sample_gaussian_dist(mean, sqrt(variance));
 }
 
+PREDICATE(sample_gamma, 3) {
+	double a = (double)A1;
+	double b = (double)A2;
+	return A3 = samplerObj->sample_gamma_dist(a, b);
+}
+
+PREDICATE(sample_beta, 3) {
+	double a = (double)A1;
+	double b = (double)A2;
+	return A3 = samplerObj->sample_beta_dist(a, b);
+}
+
 PREDICATE(sample_uniform, 3) {
 	double a = (double)A1;
 	double b = (double)A2;
@@ -121,6 +133,20 @@ PREDICATE(weight_gaussian, 4) {
 	double variance = (double)A2;
 	double x = (double)A3;
 	return A4 = samplerObj->weight_gaussian_dist(mean, sqrt(variance), x);
+}
+
+PREDICATE(weight_gamma, 4) {
+	double a = (double)A1;
+	double b = (double)A2;
+	double x = (double)A3;
+	return A4 = samplerObj->weight_gamma_dist(x, a, b);
+}
+
+PREDICATE(weight_beta, 4) {
+	double a = (double)A1;
+	double b = (double)A2;
+	double x = (double)A3;
+	return A4 = samplerObj->weight_beta_dist(x, a, b);
 }
 
 PREDICATE(weight_uniform, 4) {
