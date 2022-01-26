@@ -9,6 +9,7 @@
 %   
 %   Davide's DC (DC_Old) can be found here: https://github.com/davidenitti/DC
 initial :-
+	display_transformed_rules(1),
 	init,
 	set_sample_size(10000),
 	set_default(2),
