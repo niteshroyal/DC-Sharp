@@ -12,7 +12,7 @@ Compared to the DC system, the inference engine of DC# is much more efficient. T
 
 However, DC# currently does not support writing the following models, which were supported by the [DC](https://github.com/davidenitti/DC) system:
 1) [Dynamic probabilistic models](https://en.wikipedia.org/wiki/Dynamic_Bayesian_network) that were expressed using Dynamic Distributional Clauses (DDCs) in the DC system.
-2) [Probabilistic models with unknown objects] (https://people.eecs.berkeley.edu/~russell/papers/pearlbook10-blog.pdf).
+2) [Probabilistic models with unknown objects](https://people.eecs.berkeley.edu/~russell/papers/pearlbook10-blog.pdf).
 
 It is possible to write (acyclic) [ProbLog](https://dtai.cs.kuleuven.be/problog/) programs without Annotated Disjunction in this version. 
 
