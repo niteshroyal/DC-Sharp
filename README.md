@@ -1,11 +1,25 @@
 # DC#
-A hybrid probabilistic logic programming language.
+A hybrid probabilistic logic programming (PLP) language.
 
-The older version of DC written by Davide Nitti is available here: [DC](https://github.com/davidenitti/DC)
+DC# integrates the syntax of distributional clauses ([DCs](https://github.com/davidenitti/DC)) and the ideas of Bayesian Logic Programs ([BLPs](http://people.csail.mit.edu/kersting/papers/srl05chapter.pdf)).
 
-This new version is written from scratch. Now, it supports [combining rules](https://link.springer.com/article/10.1007/s10472-009-9138-5) and the inference engine exploits [context-specific independencies](http://proceedings.mlr.press/v130/kumar21b/kumar21b.pdf) in DC# programs.
+DC# supports the [combining rules](https://link.springer.com/article/10.1007/s10472-009-9138-5), which are often required to express relational models. Combining rules are essential components of PLPs, which were not supported by the [DC](https://github.com/davidenitti/DC) system.
 
-It is possible to write (acyclic) ProbLog programs without Annotated Disjunction in this version. 
+Compared to the DC system, the inference engine of DC# is much more efficient. The inference engine now properly exploits the following three types of independencies:
+1) Conditional independencies (CIs), which are elegantly modeled in Bayesian networks.
+2) Context-specific independencies (CSIs), which are naturally represented by logical rules.
+3) Independence of causal influences (ICIs), i.e.,  independencies amongst attributes of related objects in relational models succinctly expressed by combining rules.
+
+However, DC# currently does not support writing the following models, which were supported by the [DC](https://github.com/davidenitti/DC) system:
+1) [Dynamic probabilistic models](https://en.wikipedia.org/wiki/Dynamic_Bayesian_network) that were expressed using Dynamic Distributional Clauses (DDCs) in the DC system.
+2) [Probabilistic models with unknown objects] (https://people.eecs.berkeley.edu/~russell/papers/pearlbook10-blog.pdf).
+
+It is possible to write (acyclic) [ProbLog](https://dtai.cs.kuleuven.be/problog/) programs without Annotated Disjunction in this version. 
+
+More details about DC# can be found in our [submitted JAIR paper](https://arxiv.org/pdf/2201.11165.pdf). 
+
+The inference engine of DC# upgrades context-specific likelihood weighting ([CS-LW](http://proceedings.mlr.press/v130/kumar21b/kumar21b.pdf)) to first-order programs.
+
 
 Installation
 ============
