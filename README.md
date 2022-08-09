@@ -6,9 +6,9 @@ DC# integrates the syntax of distributional clauses ([DCs](https://github.com/da
 DC# supports the [combining rules](https://link.springer.com/article/10.1007/s10472-009-9138-5), which are often required to express relational models. Combining rules are essential components of PLPs, which were not supported by the [DC](https://github.com/davidenitti/DC) system.
 
 Compared to the DC system, the inference engine of DC# is much more efficient. The inference engine now properly exploits the following three types of independencies:
-1) Conditional independencies (CIs), which are elegantly modeled in Bayesian networks.
-2) Context-specific independencies (CSIs), which are naturally represented by logical rules.
-3) Independence of causal influences (ICIs), i.e.,  independencies amongst attributes of related objects in relational models succinctly expressed by combining rules.
+1) Conditional independencies ([CIs](https://www.sciencedirect.com/science/article/pii/B978044488738250018X)), which are elegantly modeled in Bayesian networks.
+2) Context-specific independencies ([CSIs](https://arxiv.org/pdf/1302.3562.pdf)), which are naturally represented by logical rules.
+3) Independence of causal influences ([ICIs](https://www.jair.org/index.php/jair/article/view/10178)), i.e.,  independencies amongst attributes of related objects in relational models succinctly expressed by combining rules.
 
 However, DC# currently does not support writing the following models, which were supported by the [DC](https://github.com/davidenitti/DC) system:
 1) [Dynamic probabilistic models](https://en.wikipedia.org/wiki/Dynamic_Bayesian_network) that were expressed using Dynamic Distributional Clauses (DDCs) in the DC system.
