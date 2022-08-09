@@ -1,5 +1,5 @@
 # DC#
-A hybrid probabilistic logic programming (PLP) language.
+DC# is a hybrid probabilistic logic programming (PLP) language.
 
 DC# integrates the syntax of distributional clauses ([DCs](https://github.com/davidenitti/DC)) and the ideas of Bayesian Logic Programs ([BLPs](http://people.csail.mit.edu/kersting/papers/srl05chapter.pdf)).
 
