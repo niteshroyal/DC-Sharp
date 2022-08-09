@@ -14,7 +14,7 @@ However, DC# currently does not support writing the following models, which were
 1) [Dynamic probabilistic models](https://en.wikipedia.org/wiki/Dynamic_Bayesian_network) that were expressed using Dynamic Distributional Clauses (DDCs) in the DC system.
 2) [Probabilistic models with unknown objects](https://people.eecs.berkeley.edu/~russell/papers/pearlbook10-blog.pdf).
 
-It is possible to write (acyclic) [ProbLog](https://dtai.cs.kuleuven.be/problog/) programs without Annotated Disjunction in this version. 
+It is possible to write (acyclic) [ProbLog](https://dtai.cs.kuleuven.be/problog/) programs without Annotated Disjunction in DC#. 
 
 More details about DC# can be found in our [submitted JAIR paper](https://arxiv.org/pdf/2201.11165.pdf). 
 
