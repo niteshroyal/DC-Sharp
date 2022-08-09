@@ -20,6 +20,8 @@ More details about DC# can be found in our [submitted JAIR paper](https://arxiv.
 
 The inference engine of DC# upgrades context-specific likelihood weighting ([CS-LW](http://proceedings.mlr.press/v130/kumar21b/kumar21b.pdf)) to first-order programs.
 
+The code is in beta, if you need help or find a bug please write an issue or contact me at nitesh (DOT) kr369 (AT) gmail (DOT) com
+
 
 Installation
 ============
